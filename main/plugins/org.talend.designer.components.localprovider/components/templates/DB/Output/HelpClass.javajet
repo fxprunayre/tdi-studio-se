@@ -146,7 +146,7 @@
 				}
 				this.classForName(node);
 				this.setURL(node);
-				log4jCodeGenerateUtil.debugConnectionParams(node);
+				//log4jCodeGenerateUtil.debugConnectionParams(node);
 				if(needUserAndPassword) {
 				%>
 					String dbUser_<%=cid %> = <%=dbuser%>;
