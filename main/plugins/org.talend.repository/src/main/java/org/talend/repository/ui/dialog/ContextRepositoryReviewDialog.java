@@ -342,7 +342,7 @@ public class ContextRepositoryReviewDialog extends RepositoryReviewDialog {
         parameter.setPromptNeeded(selectedParam.isPromptNeeded());
         // parameter.setRepositoryContextId(item.getProperty().getId());
         parameter.setType(selectedParam.getType());
-        parameter.setValue(selectedParam.getValue());
+        parameter.setRawValue(selectedParam.getValue());
         contextParameters.add(parameter);
         selectedParam.setSource(item.getProperty().getId());
     }
