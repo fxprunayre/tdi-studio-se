@@ -732,9 +732,10 @@ public class RepositoryService implements IRepositoryService, IRepositoryContext
                         .toOSString();
                 return path;
             } catch (SystemException e) {
+                // no thing to do
             }
         }
-        return "";
+        return ""; //$NON-NLS-1$
     }
 
     @Override
@@ -786,10 +787,11 @@ public class RepositoryService implements IRepositoryService, IRepositoryContext
         }
         File file = new File(url.getFile());
         // String librariesPath = LibrariesManagerUtils.getLibrariesPath(ECodeLanguage.JAVA) + "/";
-        String librariesPath = processor.getCodeProject().getLocation() + "/lib/";
+        String librariesPath = processor.getCodeProject().getLocation() + "/lib/"; //$NON-NLS-1$
         String targetFileName = JobJavaScriptsManager.USERPIGUDF_JAR;
         if (!isExport) {
-            targetFileName = property.getLabel() + "_" + property.getVersion() + "_" + JobJavaScriptsManager.USERPIGUDF_JAR;
+            targetFileName = property.getLabel() + "_" //$NON-NLS-1$
+                    + property.getVersion() + "_" + JobJavaScriptsManager.USERPIGUDF_JAR; //$NON-NLS-1$
         }
         File target = new File(librariesPath + targetFileName);
         try {
