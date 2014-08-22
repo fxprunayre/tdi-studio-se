@@ -12,7 +12,7 @@ imports="
     java.util.ArrayList
 "
 %>
-
+<%@ include file="@{org.talend.designer.components.localprovider}/components/templates/Log4j/LogUtil.javajet"%>
 <%
 CodeGeneratorArgument codeGenArgument = (CodeGeneratorArgument) argument;
 INode node = (INode)codeGenArgument.getArgument();
@@ -28,6 +28,10 @@ if ((node.getIncomingConnections()!=null)&&(node.getIncomingConnections().size()
 List<Map<String, String>> criterias = (List<Map<String,String>>)ElementParameterParser.getObjectValue(node, "__CRITERIA__");
 
 String isExternalSort = ElementParameterParser.getValue(node, "__EXTERNAL__");
+
+	   log = new LogUtil(node);
+	   log.startWork();
+	   log.logCompSetting();
 
 final Integer SORT_NUM = 0;
 final Integer SORT_ALPHA = 1;
@@ -711,12 +715,14 @@ class <%=rowName %>StructILightSerializable extends <%=rowName %>Struct implemen
 %>
 
 		} catch (java.lang.Exception e) {
+			log.logPrintedException("e.getMessage()");%>
 			e.printStackTrace();
 		} finally {
 			if (dis != null) {
 				try {
 					dis.close();
             } catch (java.io.IOException e) {
+            	log.logPrintedException("e.getMessage()");%>
             	e.printStackTrace();
          	}
         	}
@@ -808,6 +814,7 @@ class <%=rowName %>StructILightSerializable extends <%=rowName %>Struct implemen
          		try {
             		dos.close();
            		} catch (java.io.IOException e) {
+           			log.logPrintedException("e.getMessage()");%>
         			e.printStackTrace();
           		}
         	}

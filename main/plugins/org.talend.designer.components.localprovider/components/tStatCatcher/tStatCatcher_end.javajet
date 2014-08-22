@@ -1,5 +1,7 @@
 <%@ jet 
 %>
-
+<%@ include file="@{org.talend.designer.components.localprovider}/components/templates/Log4j/LogUtil.javajet"%>
+<% log = new LogUtil(node); %>
 	}
 
+<%log.endWork();%>

@@ -15,12 +15,12 @@ imports="
 "
 skeleton="../templates/db_output_bulk.skeleton"
 %>
-
+<%@ include file="@{org.talend.designer.components.localprovider}/components/templates/Log4j/LogUtil.javajet"%>
 <%
 CodeGeneratorArgument codeGenArgument = (CodeGeneratorArgument) argument;
 INode node = (INode)codeGenArgument.getArgument();
 String cid = node.getUniqueName();
-
+       log = new LogUtil(node);
 List<? extends IConnection> outgoingConns = node.getOutgoingSortedConnections();
 List< ? extends IConnection> conns = node.getIncomingConnections();
 List<IMetadataColumn> columnList = getColumnList(node);
@@ -62,15 +62,6 @@ String incomingConnName = null;
 %>
  	
  	}
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
+    
+<% log.traceData(incomingConnName, columnList, log.var("nb_line")); %>
+<%log.endWork();%>

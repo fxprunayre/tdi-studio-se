@@ -5,12 +5,14 @@
     	org.talend.core.model.process.ElementParameterParser
     " 
 %>
+<%@ include file="@{org.talend.designer.components.localprovider}/components/templates/Log4j/LogUtil.javajet"%>
 <%
 CodeGeneratorArgument codeGenArgument = (CodeGeneratorArgument) argument;
 INode node = (INode)codeGenArgument.getArgument();	
 String cid = node.getUniqueName();
 String destination = ElementParameterParser.getValue(node, "__DESTINATION__");
 String rowName="";
+	   log = new LogUtil(node);
 if ((node.getIncomingConnections()!=null)&&(node.getIncomingConnections().size()>0)) {
 	rowName = node.getIncomingConnections().get(0).getName();
 } else {
@@ -39,3 +41,4 @@ globalMap.put("<%=destination %>", iterator_<%=cid %>);
 <%
 }
 %>
+<%log.endWork();%>

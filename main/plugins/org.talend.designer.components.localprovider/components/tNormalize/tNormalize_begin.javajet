@@ -8,12 +8,17 @@ imports="
     java.util.List    
 "
 %>
-
+<%@ include file="@{org.talend.designer.components.localprovider}/components/templates/Log4j/LogUtil.javajet"%>
 <%
 	CodeGeneratorArgument codeGenArgument = (CodeGeneratorArgument) argument;
 	INode node = (INode)codeGenArgument.getArgument();
 	String cid = node.getUniqueName();
 	String deduplicate = ElementParameterParser.getValue(node, "__DEDUPLICATE__");
+
+    log = new LogUtil(node);
+    log.startWork();
+    log.logCompSetting();
+
 	List<IMetadataColumn> metadataColumns = null;
 	List<IMetadataTable> metadatas = node.getMetadataList();
 	if (metadatas != null && metadatas.size() > 0) {

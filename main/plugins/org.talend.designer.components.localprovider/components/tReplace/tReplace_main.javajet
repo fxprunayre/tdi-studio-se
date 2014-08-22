@@ -11,10 +11,11 @@ imports="
     org.talend.core.model.process.IConnectionCategory
 "
 %>
-
+<%@ include file="@{org.talend.designer.components.localprovider}/components/templates/Log4j/LogUtil.javajet"%>
 <%
 CodeGeneratorArgument codeGenArgument = (CodeGeneratorArgument) argument;
 INode node = (INode)codeGenArgument.getArgument();
+      log = new LogUtil(node);
 String cid = node.getUniqueName();
 boolean strictMatch = ("true").equals(ElementParameterParser.getValue( node, "__STRICT_MATCH__" ));
 String incomingConnName = null;

@@ -4,11 +4,13 @@ imports="
     org.talend.designer.codegen.config.CodeGeneratorArgument
 "
 %>
-
+<%@ include file="@{org.talend.designer.components.localprovider}/components/templates/Log4j/LogUtil.javajet"%>
 <%
 CodeGeneratorArgument codeGenArgument = (CodeGeneratorArgument) argument;
 INode node = (INode)codeGenArgument.getArgument();
 String cid = node.getUniqueName();
+log = new LogUtil(node);
 %>
 
 globalMap.put("<%=cid %>_NB_LINE",nb_line_<%=cid%>);
+<%log.endWork();%>

@@ -5,10 +5,14 @@ imports="
     org.talend.designer.codegen.config.CodeGeneratorArgument
 " 
 %>
-
+<%@ include file="@{org.talend.designer.components.localprovider}/components/templates/Log4j/LogUtil.javajet"%>
 <%
 CodeGeneratorArgument codeGenArgument = (CodeGeneratorArgument) argument;
 INode node = (INode)codeGenArgument.getArgument();
+    //log = new LogUtil(node);
 String pause = ElementParameterParser.getValue(node, "__PAUSE__");
+	//log.startWork();
+	//log.logCompSetting();
 %>
     Thread.sleep((<%=pause%>)*1000);
+<%log.endWork();%>
