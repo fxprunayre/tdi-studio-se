@@ -14,6 +14,7 @@ imports="
     INode node = (INode)codeGenArgument.getArgument();
     String cid = node.getUniqueName();
     List<Map<String, String>> filelist = (List<Map<String,String>>)ElementParameterParser.getObjectValue(node, "__FILELIST__");
+    boolean dieOnError = "true".equals(ElementParameterParser.getValue(node, "__DIE_ON_ERROR__"));
 %>
 		
 		//initial the command
@@ -48,6 +49,16 @@ imports="
         String line_err_<%=cid%> = "";
         StringBuilder stringStderr_<%=cid%> =new StringBuilder();
 		while((line_err_<%=cid%> = breer_<%=cid%>.readLine()) != null) {
+				String  errInfo_<%= cid %> = new String(line_err_<%=cid%>.getBytes(),"UTF-8");
+				boolean deletingFileNotExists = errInfo_<%= cid %>.endsWith("No such file or directory");
+				System.err.println(errInfo_<%= cid %>);
+			<% if(dieOnError){
+				%>
+				   if(!deletingFileNotExists){
+						throw new RuntimeException("File(s) deleted failed.");
+				  }
+				<%
+			}%>
 			stringStderr_<%=cid%>.append(line_err_<%=cid%> + "\n");
 		}
 		String stderrString_<%=cid %> = stringStderr_<%=cid %>.toString();
@@ -63,6 +74,6 @@ imports="
 		sess_<%=cid%>.close();
 		if(("").equals(stringStderr_<%=cid %>.toString()) || (stringStderr_<%=cid %>.toString() == null)){
 			globalMap.put("<%=cid %>_STATUS","File(s) deleted OK");
-		}else{
-			globalMap.put("<%=cid %>_STATUS",stringStderr_<%=cid %>.toString());
+		}else{			
+			globalMap.put("<%=cid %>_STATUS",stringStderr_<%=cid %>.toString());			
 		}
