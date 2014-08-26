@@ -7,16 +7,11 @@ imports="
     java.util.Map
 "
 %>
-<%@ include file="@{org.talend.designer.components.localprovider}/components/templates/Log4j/LogUtil.javajet"%>
+
 <%
 CodeGeneratorArgument codeGenArgument = (CodeGeneratorArgument) argument;
 INode node = (INode)codeGenArgument.getArgument();
 String cid = node.getUniqueName();
-
-	log = new LogUtil(node);
-	log.startWork();
-	log.logCompSetting();
-
 List<Map<String, String>> variables =
     (List<Map<String,String>>)ElementParameterParser.getObjectValue(
         node,
@@ -29,5 +24,3 @@ globalMap.put(<%=variable.get("KEY")%>, <%=variable.get("VALUE")%>);
 <%
 }
 %>
-
-<%log.endWork();%>

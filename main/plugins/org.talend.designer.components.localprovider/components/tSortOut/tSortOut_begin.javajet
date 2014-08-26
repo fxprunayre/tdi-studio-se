@@ -29,9 +29,8 @@ List<Map<String, String>> criterias = (List<Map<String,String>>)ElementParameter
 
 String isExternalSort = ElementParameterParser.getValue(node, "__EXTERNAL__");
 
-	   log = new LogUtil(node);
-	   log.startWork();
-	   log.logCompSetting();
+	log = new LogUtil(node);
+
 
 final Integer SORT_NUM = 0;
 final Integer SORT_ALPHA = 1;

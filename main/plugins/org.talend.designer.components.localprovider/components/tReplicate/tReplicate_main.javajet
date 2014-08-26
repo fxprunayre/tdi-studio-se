@@ -9,13 +9,10 @@ imports="
     java.util.List
 "
 %>
-<%@ include file="@{org.talend.designer.components.localprovider}/components/templates/Log4j/LogUtil.javajet"%>
+
 <%
 	CodeGeneratorArgument codeGenArgument = (CodeGeneratorArgument) argument;
-	INode node = (INode)codeGenArgument.getArgument();	
-	log = new LogUtil(node);
-	log.startWork();
-	log.logCompSetting();
+	INode node = (INode)codeGenArgument.getArgument();
     List<IMetadataTable> metadatas = node.getMetadataList();
     if ((metadatas != null) && (metadatas.size() > 0)) {//b
         IMetadataTable metadata = metadatas.get(0);
@@ -64,4 +61,3 @@ imports="
   	}//b
  }//a	
 %>
-<%log.endWork();%>

@@ -8,12 +8,11 @@
     	java.util.List
 	"
 %>
-<%@ include file="@{org.talend.designer.components.localprovider}/components/templates/Log4j/LogUtil.javajet"%>
+
 <%
 CodeGeneratorArgument codeGenArgument = (CodeGeneratorArgument) argument;
 INode node = (INode)codeGenArgument.getArgument();
 String cid = node.getUniqueName();
-	   log = new LogUtil(node);
 String destination = ElementParameterParser.getValue(node, "__DESTINATION__");
 String rowName= "";
 if ((node.getIncomingConnections()!=null)&&(node.getIncomingConnections().size()>0)) {

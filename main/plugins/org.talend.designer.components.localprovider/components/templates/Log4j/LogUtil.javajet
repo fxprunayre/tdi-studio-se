@@ -107,7 +107,7 @@ class LogUtil extends BasicLogUtil{
        			String name = ep.getName();
        			if(org.talend.core.model.process.EParameterFieldType.PASSWORD.equals(ep.getFieldType())){
        				String epName = "__" + name + "__";
-       				String password = ElementParameterParser.canEncrypt(node, epName) ? ElementParameterParser.getEncryptedValue(node, epName) : "routines.system.PasswordEncryptUtil.encryptPassword(" + ElementParameterParser.getValue(node, epName) + ")"; 
+       				String password = org.talend.core.model.process.ElementParameterParser.canEncrypt(node, epName) ? org.talend.core.model.process.ElementParameterParser.getEncryptedValue(node, epName) : "routines.system.PasswordEncryptUtil.encryptPassword(" + org.talend.core.model.process.ElementParameterParser.getValue(node, epName) + ")"; 
        				%>
                     <%=var("log4jParamters")%>.append("<%=name%>" + " = " + String.valueOf(<%=password%>).substring(0, 4) + "...");	
        			<%
