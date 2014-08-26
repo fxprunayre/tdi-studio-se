@@ -9,10 +9,10 @@ imports="
 <%
 CodeGeneratorArgument codeGenArgument = (CodeGeneratorArgument) argument;
 INode node = (INode)codeGenArgument.getArgument();
-    //log = new LogUtil(node);
+    log = new LogUtil(node);
 String pause = ElementParameterParser.getValue(node, "__PAUSE__");
-	//log.startWork();
-	//log.logCompSetting();
+	log.startWork();
+	log.logCompSetting();
 %>
     Thread.sleep((<%=pause%>)*1000);
 <%log.endWork();%>

@@ -5,7 +5,7 @@
 		org.talend.designer.codegen.config.CodeGeneratorArgument
 	"
 %>
-
+<%@ include file="@{org.talend.designer.components.localprovider}/components/templates/Log4j/DBLogUtil.javajet"%>
 <%
 	CodeGeneratorArgument codeGenArgument = (CodeGeneratorArgument) argument;
 	INode node = (INode)codeGenArgument.getArgument();
@@ -17,14 +17,21 @@
 	String updateFile = ElementParameterParser.getValue(node, "__UPDATEFILE__");
 	String connection = ElementParameterParser.getValue(node, "__CONNECTION__");
 	String useExistingConn = ElementParameterParser.getValue(node, "__USE_EXISTING_CONNECTION__");
+
+	dbLog = new DBLogUtil(node);
+	dbLog.startWork();
+	dbLog.logCompSetting();
+
 	if(("true").equals(useExistingConn)){
 		String col= "col_" + connection;
 %>
 		org.xmldb.api.base.Collection col_<%=cid%> = (org.xmldb.api.base.Collection)globalMap.get("<%=col%>");
+		<%dbLog.conn().useExistConn("col_"+cid+".getMetaData().getURL()", "col_"+cid+".getMetaData().getUserName()");%>
 <%
 	}else{
 %>
 		Class cl_<%=cid%> = Class.forName(<%=driver%>);
+		<%dbLog.conn().logJDBCDriver(dbLog.var("driver"));%>
 	    org.xmldb.api.base.Database database_<%=cid%> = (org.xmldb.api.base.Database) cl_<%=cid%>.newInstance();
 	    database_<%=cid%>.setProperty("create-database", "true");
 	    org.xmldb.api.DatabaseManager.registerDatabase(database_<%=cid%>);
@@ -34,10 +41,12 @@
 		%>
 		
 		<%@ include file="@{org.talend.designer.components.localprovider}/components/templates/password.javajet"%>
-	   	
+	   	<%dbLog.conn().connTry(dbLog.var("uri"), dbLog.var("user"));%>
 	    org.xmldb.api.base.Collection col_<%=cid%> = org.xmldb.api.DatabaseManager.getCollection(<%=uri%> + <%=collection%>,<%=user%>,decryptedPassword_<%=cid%>);
+		<%dbLog.conn().connDone(dbLog.var("uri"));%>
 <%
 	}
+		dbLog.commit().logAutoCommit("col_"+cid+".getAutoCommit()");
 %>
 	org.xmldb.api.modules.XUpdateQueryService service_<%=cid%> = (org.xmldb.api.modules.XUpdateQueryService) col_<%=cid%>.getService("XUpdateQueryService", "1.0");
 	java.io.File file_<%=cid%> = new java.io.File(<%=updateFile%>);
@@ -47,3 +56,4 @@
 	br_<%=cid%>.close();
 	String xUpdateModifications_<%=cid%> = new String(characters_<%=cid%>);
 	service_<%=cid%>.update(xUpdateModifications_<%=cid%>);
+    <%dbLog.endWork();%>
