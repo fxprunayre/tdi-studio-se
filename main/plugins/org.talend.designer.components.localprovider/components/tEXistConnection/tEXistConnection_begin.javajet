@@ -16,11 +16,9 @@
 	String user = ElementParameterParser.getValue(node, "__USERNAME__");
 
 	dbLog = new DBLogUtil(node);
-	dbLog.startWork();
-	dbLog.logCompSetting();
 %>
-	Class cl_<%=cid%> = Class.forName(<%=driver%>);
-	<%dbLog.conn().logJDBCDriver(dbLog.var("driver"));%>
+	Class cl_<%=cid%> = Class.forName(<%=driver%>);	
+	<%dbLog.conn().logJDBCDriver(driver);%>
     org.xmldb.api.base.Database database_<%=cid%> = (org.xmldb.api.base.Database) cl_<%=cid%>.newInstance();
     database_<%=cid%>.setProperty("create-database", "true");
     org.xmldb.api.DatabaseManager.registerDatabase(database_<%=cid%>);
@@ -30,10 +28,7 @@
 	%>
 	
 	<%@ include file="@{org.talend.designer.components.localprovider}/components/templates/password.javajet"%>
-   	<%dbLog.conn().connTry(dbLog.var("uri"), dbLog.var("user"));%>
+   	<%dbLog.conn().connTry(uri,user);%>
     org.xmldb.api.base.Collection col_<%=cid%> = org.xmldb.api.DatabaseManager.getCollection(<%=uri%> + <%=collection%>,<%=user%>,decryptedPassword_<%=cid%>);
-	<%dbLog.conn().connDone(dbLog.var("uri"));%>
-	dbLog.commit().logAutoCommit("col_"+cid+".getAutoCommit()");
+	<%dbLog.conn().connDone(uri);%>
     globalMap.put("col_<%=cid%>",col_<%=cid%>);
-
-	<%dbLog.endWork();%>
