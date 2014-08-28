@@ -1049,7 +1049,7 @@ public class Process extends Element implements IProcess2, IGEFProcess, ILastVer
                 }
             }
         } else if (param.getFieldType().equals(EParameterFieldType.PASSWORD) && value instanceof String) {
-            pType.setValue((String) value, true);
+            pType.setRawValue((String) value);
         } else {
             if (value == null) {
                 pType.setValue(""); //$NON-NLS-1$
