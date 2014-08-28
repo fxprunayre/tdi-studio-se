@@ -110,16 +110,17 @@ class LogUtil extends BasicLogUtil{
        				String password = org.talend.core.model.process.ElementParameterParser.canEncrypt(node, epName) ? org.talend.core.model.process.ElementParameterParser.getEncryptedValue(node, epName) : "routines.system.PasswordEncryptUtil.encryptPassword(" + org.talend.core.model.process.ElementParameterParser.getValue(node, epName) + ")"; 
        				%>
                     <%=var("log4jParamters")%>.append("<%=name%>" + " = " + String.valueOf(<%=password%>).substring(0, 4) + "...");	
+                    <%=var("log4jParamters")%>.append(" | ");
        			<%
        			}else{
        				String value = org.talend.core.model.utils.NodeUtil.getNormalizeParameterValue(node, ep);
-       				%>
-    				<%=var("log4jParamters")%>.append("<%=name%>" + " = " + <%=value%>);
-    			<%
-    			}	
-    			%>
-    			<%=var("log4jParamters")%>.append(" | ");
-    		<%
+       				if(!"SQLPATTERN_VALUE".equalsIgnoreCase(name)){// just for excluding tSQLTemplateAggregate and some similar components
+       					%>
+       					<%=var("log4jParamters")%>.append("<%=name%>" + " = " + <%=value%>);
+       					<%=var("log4jParamters")%>.append(" | ");
+       					<%
+       				}
+    			}
        		}
     	}
    		debug(var("log4jParamters"));

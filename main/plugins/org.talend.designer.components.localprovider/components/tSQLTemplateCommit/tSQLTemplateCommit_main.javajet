@@ -4,11 +4,11 @@ imports="
 " 
 skeleton="../templates/sqlpattern.skeleton"
 %>
-
+<%@ include file="@{org.talend.designer.components.localprovider}/components/templates/Log4j/DBLogUtil.javajet"%>
 <%
 CodeGeneratorArgument codeGenArgument = (CodeGeneratorArgument) argument;
 INode node = (INode)codeGenArgument.getArgument();
-
+      dbLog = new DBLogUtil(node);
 String cid = node.getUniqueName();
 boolean close = ("true").equals(ElementParameterParser.getValue(node,"__CLOSE__"));
 
@@ -18,5 +18,7 @@ boolean close = ("true").equals(ElementParameterParser.getValue(node,"__CLOSE__"
 stmt_<%=cid%>.close();
 
 <%  if(close){%>
+	<%dbLog.conn().closeTry(null);%>
     conn_<%=cid%>.close();
+	<%dbLog.conn().closeDone(null);%>
 <% }%>

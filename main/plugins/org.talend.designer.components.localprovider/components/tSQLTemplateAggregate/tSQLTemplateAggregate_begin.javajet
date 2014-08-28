@@ -13,11 +13,11 @@ imports="
 " 
 skeleton="../templates/db_output_bulk.skeleton"
 %>
-
+<%@ include file="@{org.talend.designer.components.localprovider}/components/templates/Log4j/DBLogUtil.javajet"%>
 <%
     CodeGeneratorArgument codeGenArgument = (CodeGeneratorArgument) argument;
     INode node = (INode)codeGenArgument.getArgument();
-
+          dbLog = new DBLogUtil(node);
     String cid = node.getUniqueName();
     
     String dbType = ElementParameterParser.getValue(node,"__DBTYPE__");
@@ -37,6 +37,10 @@ skeleton="../templates/db_output_bulk.skeleton"
     boolean convertToUppercase = ("true").equals(ElementParameterParser.getValue(node, "__CONVERT_COLUMN_TABLE_TO_UPPERCASE__"));//??
 %>
 java.sql.Connection conn_<%=cid%> = (java.sql.Connection)globalMap.get("<%=conn%>");
+<%
+    dbLog.conn().useExistConn("conn_"+cid+".getMetaData().getURL()", "conn_"+cid+".getMetaData().getUserName()");
+    dbLog.commit().logAutoCommit("conn_"+cid+".getAutoCommit()");
+%>
 java.sql.Statement stmt_<%=cid%> = conn_<%=cid%>.createStatement();
 <%
 List<IMetadataColumn> columnList = getColumnList(node);
