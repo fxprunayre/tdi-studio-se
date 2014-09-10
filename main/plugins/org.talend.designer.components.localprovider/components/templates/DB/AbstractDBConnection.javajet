@@ -8,7 +8,6 @@ imports="
 <%
     CodeGeneratorArgument codeGenArgument = (CodeGeneratorArgument) argument;
     INode node = (INode)codeGenArgument.getArgument();
-	
     String cid = node.getUniqueName();
     String dbhost = ElementParameterParser.getValue(node, "__HOST__");
     String dbport = ElementParameterParser.getValue(node, "__PORT__");
@@ -25,7 +24,6 @@ imports="
 %>
 <%
 	connUtil.beforeComponentProcess(node);
-	
 	connUtil.createURL(node);
 %>
 
@@ -41,9 +39,7 @@ imports="
 	<%}%>
 
 	java.sql.Connection conn_<%=cid%> = null;
-	<%@ include file="../Log4j/Log4jDBConnUtil.javajet"%>
 <%
-	log4jCodeGenerateUtil.infoComponentStart(node);
 	if(isUseSharedConnection){
 %>
 	<%connUtil.useShareConnection(node);%>
@@ -58,13 +54,11 @@ imports="
 <%
 		}
 %>
-		<%connUtil.classForName(node);%>
 		<%
-		log4jCodeGenerateUtil.debugConnectionParams(node);
-		log4jCodeGenerateUtil.connect_begin();
+		connUtil.classForName(node);
 		connUtil.createConnection(node);
-		log4jCodeGenerateUtil.connect_end();
 		%>
+
 		globalMap.put("conn_<%=cid%>", conn_<%=cid%>);
 <%
 		if(specify_alias){
@@ -79,5 +73,4 @@ imports="
 	}
 <%
 	connUtil.afterComponentProcess(node);
-	log4jCodeGenerateUtil.infoComponentEnd(node);
 %>

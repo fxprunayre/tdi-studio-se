@@ -87,7 +87,7 @@ imports="
 		public void debugConnectionParams(INode node) {
 			beforeComponentProcess(node);
 			debugDriverClassName();
-			super.logParameters(node);
+			//super.logParameters(node);// This statement will log the init parameters of components too.
 		}
 
 		public void dbConnectionParamsForELT(INode previousNode){
