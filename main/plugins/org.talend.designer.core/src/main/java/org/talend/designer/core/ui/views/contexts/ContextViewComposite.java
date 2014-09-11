@@ -108,7 +108,7 @@ public class ContextViewComposite extends ContextComposite {
      * @see org.talend.core.ui.context.ContextComposite#switchSettingsView()
      */
     @Override
-    protected void switchSettingsView(String oldName, String newName) {
+    public void switchSettingsView(String oldName, String newName) {
         if (UpdateContextVariablesHelper.updateProcessForRenamed(getProcess(), oldName, newName)) {
             JobSettings.switchToCurJobSettingsView();
             ComponentSettings.switchToCurComponentSettingsView();
