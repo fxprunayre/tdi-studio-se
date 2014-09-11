@@ -254,7 +254,6 @@ public class CLASS {
     public abstract class Manager {
         
         protected INode node;// add the Node, it will be more convenient
-
         public void setNode(INode node) {
            this.node = node;
         }
@@ -1947,7 +1946,8 @@ public class CLASS {
                 	MappingTypeRetriever mappingType = MetadataTalendType.getMappingTypeRetriever(getDBMSId());
 					dbType = mappingType.getDefaultSelectedDbType(column.getColumn().getTalendType());
                 }
-                if("true".equals(ignoreDateOutOfRange) &&("DATE".equals(dbType) || "DATETIME2".equals(dbType) || "DATETIMEOFFSET".equals(dbType))){
+                boolean isMSSQL = "id_MSSQL".equals(this.getDBMSId());
+                if("true".equals(ignoreDateOutOfRange) &&("DATE".equals(dbType) || "DATETIME2".equals(dbType) || "DATETIMEOFFSET".equals(dbType))){                    
                 	String pattern = column.getColumn().getPattern();
                 	setStmt.append("if(" + incomingConnName + "." + column.getName() +"!=null && "+ incomingConnName + "." + column.getName() + ".getTime() < year2_"+cid+"){");
                 	if("DATETIMEOFFSET".equals(dbType)) {
@@ -1962,12 +1962,25 @@ public class CLASS {
 					}
 					setStmt.append(");\r\n");
                 	setStmt.append("}\r\n");
-                }else{
-                	setStmt.append(prefix + cid + ".setTimestamp(" + index + dynamic + ", new java.sql.Timestamp(" + incomingConnName + "." + column.getName() + ".getTime())");
-                	if("DATETIMEOFFSET".equals(dbType)) {
-						setStmt.append(",calendar_datetimeoffset_").append(cid);
-					}
+                }else if(isMSSQL && "TIME".equals(dbType)){//TDI-30431 begin
+                    String timePattern = column.getColumn().getPattern();
+                    if(timePattern == null || "dd-MM-yyyy".equals(timePattern) || "".equals(timePattern)){
+                         timePattern = "HH:mm:ss.SSS";
+                    }
+                    //Compatible with Time,Date and String,it will fail if Time contain fractional seconds.(Solution:Use sqljdbc.jar and setTime() instead)
+                    //setStmt.append(prefix + cid + ".setString(" + index + dynamic + "," + incomingConnName + "." + column.getName()+".toString()");// For Time and String
+                    setStmt.append(prefix + cid + ".setString(" + index + dynamic + ","
+                                    + incomingConnName + "." + column.getName()
+                                    +" instanceof java.util.Date ? new java.text.SimpleDateFormat("+timePattern+").format("
+                                    + incomingConnName + "." + column.getName()+") : "
+                                    + incomingConnName + "." + column.getName()+".toString()");//Compatible with tFileInputDelimiter Date Type and Time and String
                 	setStmt.append(");\r\n");
+                }else{//TDI-30431 end
+                    setStmt.append(prefix + cid + ".setTimestamp(" + index + dynamic + ", new java.sql.Timestamp(" + incomingConnName + "." + column.getName() + ".getTime())");
+                    if("DATETIMEOFFSET".equals(dbType)) {
+                        setStmt.append(",calendar_datetimeoffset_").append(cid);
+                    }
+                    setStmt.append(");\r\n");
                 }
                 setStmt.append("} else {\r\n");
                 setStmt.append(prefix + cid + ".setNull(" + index + dynamic + ", java.sql.Types.DATE);\r\n");
