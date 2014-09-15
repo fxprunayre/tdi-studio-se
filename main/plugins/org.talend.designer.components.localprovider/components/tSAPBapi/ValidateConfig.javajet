@@ -1,0 +1,59 @@
+<%
+	List<? extends IConnection> inputConnections = node.getIncomingConnections();
+	if((inputConnections == null) || (inputConnections.size() == 0)) {
+		return "";
+	}
+	
+	IConnection inputConnection = inputConnections.get(0);
+	
+	if(!inputConnection.getLineStyle().hasConnectionCategory(IConnectionCategory.DATA)) {
+		return "";
+	}
+	
+	List<? extends IConnection> outputConnections = node.getOutgoingSortedConnections();
+	if((outputConnections == null) || (outputConnections.size() == 0)) {
+		return "";
+	}
+	IConnection outputConnection = outputConnections.get(0);
+	
+	if(!outputConnection.getLineStyle().hasConnectionCategory(IConnectionCategory.DATA)) {
+		return "";
+	}
+	
+	IMetadataTable inputMetadata = inputConnection.getMetadataTable();
+	if (inputMetadata == null ) {
+		return "";
+	}
+	
+	List<IMetadataColumn> inputColumnList = inputMetadata.getListColumns();
+	if((inputColumnList == null) || (inputColumnList.size() == 0)) {
+		return "";
+	}
+	
+	IMetadataTable outputMetadata = outputConnection.getMetadataTable();
+	if (outputMetadata == null ) {
+		return "";
+	}
+	
+	List<IMetadataColumn> outputColumnList = outputMetadata.getListColumns();
+	if((outputColumnList == null) || (outputColumnList.size() == 0)) {
+		return "";
+	}
+	
+	int count = 0;
+	for(IConnection inConnection : inputConnections) {
+		if(inConnection.getLineStyle().hasConnectionCategory(IConnectionCategory.DATA)) {
+			count++;
+		}
+	}
+	
+	for(IConnection outConnection : outputConnections) {
+		if(outConnection.getLineStyle().hasConnectionCategory(IConnectionCategory.DATA)) {
+			count++;
+		}
+	}
+	
+	if(count!=2) {
+		return "";
+	}
+%>
