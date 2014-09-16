@@ -202,7 +202,19 @@ if(nb_line_<%=cid %> > 0){
 <%
 		    }else{
 %>
-    listGroupby_<%=cid %>.add(strWriter_<%=cid %>.toString());
+    List<Object> list_<%= cid %> = new java.util.ArrayList<Object>();
+    			  <%
+    		  List<Map<String,String>> groupbys = (List<Map<String,String>>)ElementParameterParser.getObjectValue(node, "__GROUPBYS__");
+		      for(Map<String,String> map : groupbys){
+					String groupByColumnName = map.get("INPUT_COLUMN");
+					%>					
+					list_<%= cid %>.add(valueMap_<%=cid %>.get("<%= groupByColumnName %>"));
+					<%
+		     } 
+		     %>
+		     list_<%= cid %>.add((Object)strWriter_<%=cid %>.toString());
+		     listGroupby_<%=cid %>.add(list_<%= cid %>);
+
 <%
 		    }
 		}

@@ -8,6 +8,8 @@ imports="
     org.talend.core.model.metadata.types.JavaType
     org.talend.core.model.metadata.IMetadataColumn
     java.util.List
+    java.util.Map
+    java.util.ArrayList
   	org.talend.core.model.process.IConnection
 	org.talend.core.model.process.IConnectionCategory
 "
@@ -85,8 +87,21 @@ if ((metadatas!=null)&&(metadatas.size()>0)) {
 <%
     		        }
     		    }else{
-%>    		        
-    		        str_<%=cid %> = queue_<%=cid %>.poll();
+%>    		        List<Object> result = queue_<%=cid %>.poll();
+    		        str_<%=cid %> = (String)result.get(result.size()-1);
+                    //must get schema
+                <%
+                    List<Map<String,String>> groupbys = (List<Map<String,String>>)ElementParameterParser.getObjectValue(node, "__GROUPBYS__");
+                    int i = 0;
+                    for(Map<String,String> map : groupbys){
+                            String groupByColumnName = map.get("INPUT_COLUMN");
+                            String outputColumnName = map.get("OUTPUT_COLUMN");
+                            %>
+                            <%=conn.getName()%>.<%= outputColumnName %> = (String)result.get(<%= i %>);
+                            <%
+                            i++;
+                   } 
+                 %>
 <%
     		    }
 %>
