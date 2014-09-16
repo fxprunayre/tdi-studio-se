@@ -22,7 +22,8 @@ skeleton="tWriteXMLFieldOut_java.skeleton"
 CodeGeneratorArgument codeGenArgument = (CodeGeneratorArgument) argument;
 INode node = (INode)codeGenArgument.getArgument();
 String cid = node.getUniqueName();
-
+String destination4JSON = ElementParameterParser.getValue(node, "__DESTINATION__");
+boolean istWriteJSONField = destination4JSON == null ? false : destination4JSON.startsWith("tWriteJSONField_");
 boolean isCompactFormat = ("true").equals(ElementParameterParser.getValue(node, "__COMPACT_FORMAT__"));
 final String whiteSpace;
 final String rowSeparator;
@@ -570,23 +571,17 @@ if (inConn != null) {
 		}
 	}
 %>
-	//loop "group by" columns
-	<%
-				for(IMetadataColumn column :inputColumns){
-%>
-				Object <%=column.getLabel()%><%= cid %> = valueMap_<%=cid%>.get("<%=column.getLabel()%>");
-<%
-				}
-%>
 	if(strCompCache_<%=cid %>==null){
 		strCompCache_<%=cid %>=strTemp_<%=cid %>;
-<%
-				for(IMetadataColumn column :inputColumns){
-%>
-	           groupByColumns_<%=cid%>.put("<%=column.getLabel()%>",<%tool.getValue(column);%>);
-<%
-				}
-%>
+		<%
+		     if(istWriteJSONField){
+		     		for(IMetadataColumn column :inputColumns){
+						%>
+							  groupByColumns_<%=cid%>.put("<%=column.getLabel()%>",<%tool.getValue(column);%>);
+						<%
+						}
+		 }
+		%>
 	}else{
 <%
 // ------------------- *** Common code end *** ------------------- //
@@ -634,19 +629,25 @@ if(("Dom4j").equals(mode)){
                 listGroupby_<%=cid %>.add(map_<%=cid%>);
 <%
             }else{
-%>            
-			  List<Object> list_<%= cid %> = new java.util.ArrayList<Object>();
-			  <%
-		      for(Map<String,String> map : groupbys){
-					String groupByColumnName = map.get("INPUT_COLUMN");
-					%>					
-					list_<%= cid %>.add(groupByColumns_<%= cid %>.get("<%= groupByColumnName %>"));
-					<%
-		     } 
-		     %>
-		     list_<%= cid %>.add((Object)strWriter_<%=cid %>.toString());
-		     listGroupby_<%=cid %>.add(list_<%= cid %>);
-<%
+				if(istWriteJSONField){
+					%>            
+				  		  List<Object> list_<%= cid %> = new java.util.ArrayList<Object>();
+						  <%
+					      for(Map<String,String> map : groupbys){
+								String groupByColumnName = map.get("INPUT_COLUMN");
+								%>					
+								list_<%= cid %>.add(groupByColumns_<%= cid %>.get("<%= groupByColumnName %>"));
+								<%
+					     } 
+					     %>
+					     list_<%= cid %>.add(strWriter_<%=cid %>.toString());
+					     listGroupby_<%=cid %>.add(list_<%= cid %>);
+							<%
+				}else{
+								%>
+										    listGroupby_<%=cid %>.add(strWriter_<%=cid %>.toString());
+								<%
+				}
             }
 		}
 %>
@@ -700,11 +701,14 @@ if(("Dom4j").equals(mode)){
             }
         }
     }
-				for(IMetadataColumn column :inputColumns){
-%>
-	           groupByColumns_<%=cid%>.put("<%=column.getLabel()%>",<%tool.getValue(column);%>);
-<%
-				}
+		
+	if(istWriteJSONField){
+		for(IMetadataColumn column :inputColumns){
+				%>
+					groupByColumns_<%=cid%>.put("<%=column.getLabel()%>",<%tool.getValue(column);%>);
+				<%
+		}
+}
 %>
 	org.dom4j.Element subTreeRootParent_<%=cid%> = null;
 	

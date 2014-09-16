@@ -9,9 +9,10 @@ imports="
     org.talend.core.model.metadata.IMetadataColumn
     java.util.List
     java.util.Map
+    java.util.HashMap
     java.util.ArrayList
-  	org.talend.core.model.process.IConnection
-	org.talend.core.model.process.IConnectionCategory
+    org.talend.core.model.process.IConnection
+    org.talend.core.model.process.IConnectionCategory
 "
 %>
 
@@ -19,27 +20,28 @@ imports="
 CodeGeneratorArgument codeGenArgument = (CodeGeneratorArgument) argument;
 INode node = (INode)codeGenArgument.getArgument();
 String cid = node.getUniqueName();
-
-
 String jsonField = ElementParameterParser.getValue(node, "__JSONFIELD__");
 String destination = ElementParameterParser.getValue(node, "__DESTINATION__");
+boolean istWriteJSONField = destination == null ? false : destination.startsWith("tWriteJSONField_");
+Map<String,IMetadataColumn> columnNameType = new HashMap<String,IMetadataColumn>();
+
 List<IMetadataTable> metadatas = node.getMetadataList();
 if ((metadatas!=null)&&(metadatas.size()>0)) {
     IMetadataTable metadata = metadatas.get(0);
     if (metadata!=null) {
-    	List< ? extends IConnection> conns = node.getOutgoingSortedConnections();
-		if(conns!=null && conns.size()>0){
-    		IConnection conn = conns.get(0);
-    		if (conn.getLineStyle().hasConnectionCategory(IConnectionCategory.DATA)) {
-    		    if(destination!=null && (destination.indexOf("tCouchbaseOutput_")>=0 || destination.indexOf("tCouchDBOutput_")>=0)){
+        List< ? extends IConnection> conns = node.getOutgoingSortedConnections();
+        if(conns!=null && conns.size()>0){
+            IConnection conn = conns.get(0);
+            if (conn.getLineStyle().hasConnectionCategory(IConnectionCategory.DATA)) {
+                if(destination!=null && (destination.indexOf("tCouchbaseOutput_")>=0 || destination.indexOf("tCouchDBOutput_")>=0)){
 %>
-    		        map_<%=cid%> = queue_<%=cid %>.poll();
-		            str_<%=cid %> = (String)map_<%=cid%>.get("json_<%=destination%>");
-		            String columnValue_<%=cid%> = "";
+                    map_<%=cid%> = queue_<%=cid %>.poll();
+                    str_<%=cid %> = (String)map_<%=cid%>.get("json_<%=destination%>");
+                    String columnValue_<%=cid%> = "";
 <%
-    		        List<IMetadataColumn> columnList = metadata.getListColumns();
-    		        for(IMetadataColumn column: columnList){
-    		            String columnName = column.getLabel();
+                    List<IMetadataColumn> columnList = metadata.getListColumns();
+                    for(IMetadataColumn column: columnList){
+                        String columnName = column.getLabel();
                         String talendType = column.getTalendType();
                         String typeToGenerate = JavaTypesManager.getTypeToGenerate(talendType, column.isNullable());
                         JavaType javaType = JavaTypesManager.getJavaTypeFromId(talendType);
@@ -47,22 +49,22 @@ if ((metadatas!=null)&&(metadatas.size()>0)) {
                         String defaultValue = JavaTypesManager.getDefaultValueFromJavaType(typeToGenerate, column.getDefault());
                         String patternValue = column.getPattern() == null || column.getPattern().trim().length() == 0 ? null : column.getPattern();
 %>
-            		    if(map_<%=cid%>.containsKey("<%=column.getLabel()%>")){
-            		        Object obj_<%=cid%> = map_<%=cid%>.get("<%=column.getLabel()%>");
-            		        if(obj_<%=cid%> == null){
-            		            <%
-            		            if(isPrimitive){
-            		            %> 
-                		            <%=conn.getName()%>.<%=columnName%> = <%=defaultValue %>;
-            		            <%
-            		            }else{
-            		            %>
-            		                <%=conn.getName()%>.<%=columnName%> = null;
-            		            <%
-            		            }
-            		            %>
-            		        }else{
-            		            columnValue_<%=cid%> = obj_<%=cid%>.toString();
+                        if(map_<%=cid%>.containsKey("<%=column.getLabel()%>")){
+                            Object obj_<%=cid%> = map_<%=cid%>.get("<%=column.getLabel()%>");
+                            if(obj_<%=cid%> == null){
+                                <%
+                                if(isPrimitive){
+                                %> 
+                                    <%=conn.getName()%>.<%=columnName%> = <%=defaultValue %>;
+                                <%
+                                }else{
+                                %>
+                                    <%=conn.getName()%>.<%=columnName%> = null;
+                                <%
+                                }
+                                %>
+                            }else{
+                                columnValue_<%=cid%> = obj_<%=cid%>.toString();
 <%
                                if(javaType == JavaTypesManager.STRING || javaType == JavaTypesManager.OBJECT) {
 %>
@@ -82,37 +84,62 @@ if ((metadatas!=null)&&(metadatas.size()>0)) {
 <%
                                }
 %>
-            		        }
-            		    }
+                            }
+                        }
 <%
-    		        }
-    		    }else{
-%>    		        List<Object> result = queue_<%=cid %>.poll();
-    		        str_<%=cid %> = (String)result.get(result.size()-1);
-                    //must get schema
-                <%
+                    }
+                }else{
+                    if(istWriteJSONField){
+                        List<IMetadataColumn> columnList = metadata.getListColumns();
+                        for(IMetadataColumn column: columnList){
+                            String columnName = column.getLabel();
+                            columnNameType.put(columnName,column);
+                        }
+                    %>
+                    List<Object> result = queue_<%=cid %>.poll();
+                    str_<%=cid %> = result.get(result.size()-1).toString();
+                    <%
                     List<Map<String,String>> groupbys = (List<Map<String,String>>)ElementParameterParser.getObjectValue(node, "__GROUPBYS__");
                     int i = 0;
                     for(Map<String,String> map : groupbys){
                             String groupByColumnName = map.get("INPUT_COLUMN");
                             String outputColumnName = map.get("OUTPUT_COLUMN");
+                            IMetadataColumn  column = columnNameType.get(outputColumnName);
+                            String typeToGenerate = JavaTypesManager.getTypeToGenerate(column.getTalendType(), column.isNullable());
+                            JavaType javaType = JavaTypesManager.getJavaTypeFromId(column.getTalendType());
+                            String patternValue = column.getPattern() == null || column.getPattern().trim().length() == 0 ? null : column.getPattern();
+                            String defaultValue = JavaTypesManager.getDefaultValueFromJavaType(typeToGenerate, column.getDefault());
                             %>
-                            <%=conn.getName()%>.<%= outputColumnName %> = (String)result.get(<%= i %>);
+
+                            String content_<%= i %> = result.get(<%= i %>).toString();
+                            <%if(javaType == JavaTypesManager.STRING || javaType == JavaTypesManager.OBJECT) {%>
+                                    <%=conn.getName()%>.<%= outputColumnName %> = (content_<%= i %> == null || content_<%= i %>.length() == 0) ? <%=defaultValue %>: content_<%= i %>;
+                            <%}else if(javaType == JavaTypesManager.DATE){%>
+                                    <%=conn.getName()%>.<%= outputColumnName %> = (content_<%= i %> == null || content_<%= i %>.length() == 0) ? ParserUtils.parseTo_Date(<% if((defaultValue==null)||"".equals(defaultValue) || "null".equals(defaultValue)){%>(String)<%}%> <%=defaultValue %>, <%= patternValue %>) : ParserUtils.parseTo_Date(content_<%= i %>, <%= patternValue %>);
+                            <%}else if(javaType == JavaTypesManager.BYTE_ARRAY){%>
+                                    <%=conn.getName()%>.<%= outputColumnName %> = (content_<%= i %> == null || content_<%= i %>.length() == 0) ? <%=defaultValue %> : content_<%= i %>.getBytes();
+                            <%}else{%>
+                                    <%=conn.getName()%>.<%= outputColumnName %> = (content_<%= i %> == null || content_<%= i %>.trim().length() == 0) ? <%=defaultValue %> : ParserUtils.parseTo_<%= typeToGenerate %>(content_<%= i %>);
+                            <%}%>
+
                             <%
                             i++;
-                   } 
-                 %>
-<%
-    		    }
+                   }
+                }else{
+                        %>
+                            str_<%=cid %> = queue_<%=cid %>.poll();
+                        <%
+            }
+            }
 %>
-		//Convert XML to JSON
+        //Convert XML to JSON
         net.sf.json.JSON json_<%=cid%> = xmlSerializer_<%=cid%>.read(str_<%=cid %>);
-		<%=conn.getName()%>.<%=jsonField %> = json_<%=cid%>.toString();
-	
-		nb_line_<%=cid%>++;
+        <%=conn.getName()%>.<%=jsonField %> = json_<%=cid%>.toString();
+    
+        nb_line_<%=cid%>++;
 <%
-			}
-		}
-	}
+            }
+        }
+    }
 }
 %>
