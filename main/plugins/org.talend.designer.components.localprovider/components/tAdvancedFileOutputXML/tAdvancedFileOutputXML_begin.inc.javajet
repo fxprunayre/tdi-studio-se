@@ -524,11 +524,11 @@ class GenerateToolByDom4j{
 <%
 						if (isSaveDocAsNode) {
 %>
-							nestXMLTool_<%=cid%> .appendContent(<%=currEleName%>_<%=cid%>, ParserUtils.parseTo_Document(<%tool.getValue(node);%>).getDocument());
+							nestXMLTool_<%=cid%> .appendContent(<%touchXMLNode.getXMLElement(currEleName);%>, ParserUtils.parseTo_Document(<%tool.getValue(node);%>).getDocument());
 <%
 						} else {
 %>
-							nestXMLTool_<%=cid%> .setText(<%=currEleName%>_<%=cid%>, ParserUtils.parseTo_Document(<%tool.getValue(node);%>).getDocument().getRootElement().asXML());
+							nestXMLTool_<%=cid%> .setText(<%touchXMLNode.getXMLElement(currEleName);%>, ParserUtils.parseTo_Document(<%tool.getValue(node);%>).getDocument().getRootElement().asXML());
 <%
 						}
 %>
